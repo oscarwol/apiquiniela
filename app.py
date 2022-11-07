@@ -25,7 +25,7 @@ CURRENT_PATH = pathlib.Path(__file__).parent.resolve()
 host = "/quiniela"
 app = Flask(__name__)
 CORS(app)
-url = "mysql+pymysql://vf-quiniela:Qu1n13l4.2022!@cervezatona.cedzwrni6pi1.us-west-2.rds.amazonaws.com/vf_quiniela"
+url = "mysql+pymysql://"
 app.config["SQLALCHEMY_DATABASE_URI"] = url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = "QUINIELAWOL20222"
