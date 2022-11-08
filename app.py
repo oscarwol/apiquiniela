@@ -25,7 +25,7 @@ CURRENT_PATH = pathlib.Path(__file__).parent.resolve()
 host = "/quiniela"
 app = Flask(__name__)
 CORS(app)
-url = "mysql+pymysql://"
+url = "mysql+pymysql://vf"
 app.config["SQLALCHEMY_DATABASE_URI"] = url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = "QUINIELAWOL20222"
@@ -81,16 +81,69 @@ class Usuarios(db.Model):
         return self.usuario
 
 
-# Modelo de Facturas
+# Modelo de Selecciones
 class Selecciones(db.Model):
     __table__ = db.Model.metadata.tables["selecciones"]
 
-    def __init__(self, nombre, bandera, grupo, estado):
+    def __init__(self, id, nombre, bandera, grupo, estado):
+        self.id = id
         self.nombre = nombre
         self.bandera = bandera
         self.grupo = grupo
         self.estado = estado
 
+
+class Partidos(db.Model):
+    __table__ = db.Model.metadata.tables["partidos"]
+
+    def __init__(
+        self,
+        id,
+        id_equipo_a,
+        id_equipo_b,
+        goles_equipo_a,
+        goles_equipo_b,
+        id_equipo_ganador,
+        fase,
+        fecha,
+        estado,
+    ):
+        self.id = id
+        self.id_equipo_a = id_equipo_a
+        self.id_equipo_b = id_equipo_b
+        self.goles_equipo_a = goles_equipo_a
+        self.goles_equipo_b = goles_equipo_b
+        self.id_equipo_ganador = id_equipo_ganador
+        self.fase = fase
+        self.fecha = fecha
+        self.estado = estado
+
+
+# Modelo de Quiniela
+class Quiniela(db.Model):
+    __table__ = db.Model.metadata.tables["quiniela"]
+
+    def __init__(
+        self,
+        id_usuario,
+        id_partido,
+        goles_equipo_a,
+        goles_equipo_b,
+        id_equipo_ganador,
+        id_primer_gol,
+        puntos,
+        fecha_registro,
+        estado,
+    ):
+        self.id_usuario = id_usuario
+        self.id_partido = id_partido
+        self.goles_equipo_a = goles_equipo_a
+        self.goles_equipo_b = goles_equipo_b
+        self.id_equipo_ganador = id_equipo_ganador
+        self.id_primer_gol = id_primer_gol
+        self.puntos = puntos
+        self.fecha_registro = fecha_registro
+        self.estado = estado
 
 db.create_all()
 db.session.commit()
@@ -119,14 +172,72 @@ class Usuarios_Schema(ma.Schema):
 usuario_schema = Usuarios_Schema()
 usuarios_schema = Usuarios_Schema(many=True)
 
-# Esquema de Factuas
+# Esquema de Equipos
 class Equipos_Schema(ma.Schema):
     class Meta:
-        fields = ("nombre", "bandera", "grupo", "estado")
+        fields = ("id", "nombre", "bandera", "grupo", "estado")
 
 
-equipos_Schema = Equipos_Schema()
+equipo_Schema = Equipos_Schema()
 equipos_Schema = Equipos_Schema(many=True)
+
+
+# Esquema de Partidos
+class Partidos_Schema(ma.Schema):
+    class Meta:
+        fields = (
+            "id",
+            "id_equipo_a",
+            "id_equipo_b",
+            "goles_equipo_a",
+            "goles_equipo_b",
+            "id_equipo_ganador",
+            "fase",
+            "fecha",
+            "estado",
+        )
+
+
+partido_schema = Partidos_Schema()
+partido_schemas = Partidos_Schema(many=True)
+
+
+class Partidos_Fases(ma.Schema):
+    class Meta:
+        fields = (
+            "id",
+            "id_equipo_a",
+            "id_equipo_b",
+            "grupo",
+            "fecha",
+            "estado",
+        )
+
+
+partido_fases_schemas = Partidos_Fases(many=True)
+
+
+
+
+# Esquema de Quiniela
+class Quiniela_Schema(ma.Schema):
+    class Meta:
+        fields = (
+            "id",
+            "id_usuario",
+            "id_partido",
+            "goles_equipo_a",
+            "goles_equipo_b",
+            "id_equipo_ganador",
+            "id_primer_gol",
+            "puntos",
+            "fecha_registro",
+            "estado",
+        )
+
+
+quiniela_schema = Quiniela_Schema()
+quiniela_schemas = Quiniela_Schema(many=True)
 
 
 """ 
@@ -203,6 +314,17 @@ def validar_creacion_usuario(usuario, cedula, telefono, correo):
     if user:
         return False  # El usuario ya existe, no pasa la validacion
     return True  # El usuario no existe, pasa la validacion
+
+
+def validar_datos_quiniela(usuario, partido):
+    user = Quiniela.query.filter(
+        (Quiniela.id_usuario == usuario)
+        &  (Quiniela.id_partido == partido)
+    ).first()
+    if user:
+        return False  # El usuario ya registró este partido
+    return True  # El usuario no ha registrado este partido en la quniiela
+
 
 
 """ 
@@ -361,13 +483,149 @@ def get_usuarios():
     return "No hay resultados", 404
 
 
-# Obtener listado de facturas:
+# Obtener listado de equipos por id:
+@app.route(host + "/equipos/<id_equipo>", methods=["GET"])
+def get_equipo_por_id(id_equipo):
+    equipo = Selecciones.query.filter(Selecciones.id == id_equipo).first()
+    if equipo:
+        return equipo_Schema.jsonify(equipo), 200
+    return "No hay resultados", 404
+
+
+# Obtener listado de equipos:
 @app.route(host + "/equipos", methods=["GET"])
 def get_equipos():
     equipos = Selecciones.query.all()
     if equipos:
         return equipos_Schema.jsonify(equipos), 200
     return "No hay resultados", 404
+
+
+# Obtener listado de partidos:
+@app.route(host + "/partidos", methods=["GET"])
+def get_partidos():
+    partidos = (
+        Partidos.query.filter(Partidos.estado == 1)
+        .filter(Selecciones.id == Partidos.id_equipo_a)
+        .filter(Selecciones.estado == 1)
+        .add_columns(
+            Partidos.id_equipo_a,
+            Partidos.id_equipo_b,
+            Partidos.fecha,
+            Partidos.estado,
+            Partidos.id,
+            Selecciones.grupo,
+        )
+    )
+    if partidos:
+        return partido_fases_schemas.jsonify(partidos), 200
+    return "No hay resultados", 404
+
+
+# Obtener listado de partidos por grupo:
+@app.route(host + "/partidos/<grupo>", methods=["GET"])
+def get_partidos_por_grupos(grupo):
+    partidos = (
+        Partidos.query.filter(Partidos.estado == 1)
+        .filter(Selecciones.id == Partidos.id_equipo_a)
+        .filter(Selecciones.grupo == grupo)
+        .add_columns(
+            Partidos.id_equipo_a,
+            Partidos.id_equipo_b,
+            Partidos.fecha,
+            Partidos.estado,
+            Partidos.id,
+            Selecciones.grupo,
+        )
+        .all()
+    )
+    if partidos:
+        return partido_fases_schemas.jsonify(partidos), 200
+    return "No hay resultados", 404
+
+
+
+# Obtener listado de quinielas:
+@app.route(host + "/quiniela", methods=["GET"])
+def get_quinielas():
+    quinielas = Quiniela.query.all()
+    if quinielas:
+        return quiniela_schemas.jsonify(quinielas), 200
+    return "No hay resultados", 404
+
+# Obtener listado de quinielas por user ID:
+@app.route(host + "/quiniela/<userid>", methods=["GET"])
+def get_quinielas_por_id_user(userid):
+    quinielas = Quiniela.query.filter(Quiniela.id_usuario == userid).all()
+    if quinielas:
+        return quiniela_schemas.jsonify(quinielas), 200
+    return "No hay resultados", 404
+
+
+
+@app.route(host + "/quiniela", methods=["POST"])
+@token_required
+def ingresar_quiniela(current_user):
+    try:
+        id_usuario = current_user.id
+        id_partido = int(validar_dato(request.json["id_partido"], "numerico"))
+        goles_equipo_a = int(validar_dato(request.json["goles_equipo_a"], "numerico"))
+        goles_equipo_b = int(validar_dato(request.json["goles_equipo_b"], "numerico"))
+        partido_ganador = Partidos.query.filter(Partidos.id == id_partido).first()
+        id_primer_gol = int(validar_dato(request.json["id_primer_gol"], "numerico"))
+        equipo_query = Partidos.query.filter(Partidos.id == id_partido).first()
+        equipo_a = equipo_query.id_equipo_a
+        equipo_b = equipo_query.id_equipo_b
+        print(equipo_b == id_primer_gol)
+        if id_primer_gol != equipo_a and id_primer_gol != equipo_b and id_primer_gol != 0:
+            return jsonify({"error":  "El primer gol debe coindir con los equipos que estan jugando"}), 400
+        if not partido_ganador:
+            return jsonify({"error":  "El partido ingresado no existe"}), 404
+        if goles_equipo_a > goles_equipo_b:
+            id_equipo_ganador = equipo_a
+        elif goles_equipo_a < goles_equipo_b:
+            id_equipo_ganador = equipo_b
+        else:
+            id_equipo_ganador = None
+            id_primer_gol = None
+        puntos = 0
+        fecha_registro = datetime.now()
+        estado = 1
+
+        if validar_datos_quiniela(id_usuario, id_partido):
+            nueva_quiniela = Quiniela(id_usuario, id_partido,goles_equipo_a,goles_equipo_b,id_equipo_ganador,id_primer_gol,puntos,fecha_registro,estado)
+
+            db.session.add(nueva_quiniela)
+            db.session.commit()
+            guide = Quiniela.query.filter(Quiniela.id == nueva_quiniela.id).first()
+            return quiniela_schema.jsonify(guide), 200
+        else:
+            response = jsonify(
+                {"error": "No se pudo registrar la quiniela, este usuario ya ingreso el partido"}
+            )
+            response.status_code = 409
+            return response
+    except KeyError as e:
+        response = jsonify(
+            {
+                "error": "El registro de quiniela no pudo ser completado, hace falta el campo "
+                + str(e)
+            }
+        )
+        response.status_code = 400
+        return response
+    except:
+        response = jsonify(
+            {"error": "El registro no pudo ser completado, intenta nuevamente"}
+        )
+        response.status_code = 500
+        return response
+
+
+# Obtener listado de Usuarios:
+@app.route("/", methods=["GET"])
+def test_index():
+    return "Api funcionando correctamente", 200
 
 
 if __name__ == "__main__":
