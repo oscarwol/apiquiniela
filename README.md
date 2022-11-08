@@ -54,7 +54,7 @@ https://quiniela-eight.vercel.app/quiniela/
 localhost:7000
 ```
 
-El sistema cuenta actualmente con 6 'end point' diferentes: 
+El sistema cuenta actualmente con 12 'end point' diferentes: 
 
 | HTTP Type | Path | Used For |
 | --- | --- | --- |
@@ -62,10 +62,14 @@ El sistema cuenta actualmente con 6 'end point' diferentes:
 | `POST` | /register | Nos permite registrar un nuevo usuario en el sistema, retorna un token |
 | `GET` | /usuarios | Retorna la lista de usuarios registrados en el sistema (Esto será removido cuando terminen las pruebas) |
 | `GET` | /equipos | Nos muestra el listado de todas las selecciones registradas en el sistema |
+| `GET` | /equipos/EQUIPO_ID | Nos muestra los datos de un equipo con una ID específica |
 | `GET` | /active/{TOKEN} | Nos muestra si un token específico esta activo o no y la información del mismo |
 | `POST` | /activarcorreo | Permite activar una cuenta con 'estado_correo = 0' |
-
-
+| `GET` | /partidos | Nos muestra el listado de TODOS los partidos registrados dentro del sistema |
+| `GET` | /partidos/GRUPO | Nos muestra el listado de partidos por grupo. Ej: /partidos/A : Grupo A. |
+| `GET` | /quiniela | Nos muestra el listado de todas las quinielas registradas en el sistema |
+| `GET` | /quiniela/USER_ID | Nos muestra el listado de todas las quinielas de un usuario en específico |
+| `POST` | /quiniela | Permite crear una nueva quiniela (Se requiere de un token)|
 
 #### Endpoint Login [/login]
 ```http
@@ -122,17 +126,12 @@ Ejemplos de datos a enviar:
 ### Endpoint 'Active' (Obtener el estado en tiempo real de un token): [/active/token]
 Mediante la ejecución de un simple GET podemos obtener todos los datos correspondientes a un token, debe enviarse el token de la siguiente manera:
 ```http
-  GET /equipos/TOKEN
+  GET /active/TOKEN
 ```
 ---
 
 
-### Endpoint Equipos (Obtener selecciones): [/equipos]
-Mediante la ejecución de un simple GET podemos obtener todos las selecciones registradas, no es necesario enviar ningun tipo de parametro.
-```http
-  GET /equipos
-```
----
+
 
 ### Endpoint Usuarios (Obtener Usuarios [/usuarios]
 Mediante la ejecución de un simple GET podemos obtener todos los usuarios registrados en el sistema, no es necesario enviar ningun tipo de parametro.
@@ -143,3 +142,68 @@ Mediante la ejecución de un simple GET podemos obtener todos los usuarios regis
 
 ---
 
+
+### Endpoint Equipos (Obtener selecciones): [/equipos]
+Mediante la ejecución de un simple GET podemos obtener todos las selecciones registradas, no es necesario enviar ningun tipo de parametro.
+```http
+  GET /equipos
+```
+---
+
+### Endpoint Equipos por ID (Obtener seleccion por ID): [/equipos/Equipo_ID]
+Mediante la ejecución de un simple GET podemos obtener todos las selecciones registradas.
+```http
+  GET /equipos/1
+``` 
+#### Obtendrá la información de la selección ID #1
+---
+
+### Endpoint Partidos (Obtener el listado total de partidos): [/partidos]
+Mediante la ejecución de un simple GET podemos obtener todos los partidos registrados.
+```http
+  GET /partidos
+```
+---
+
+### Endpoint Partidos por grupo (Obtener el listado total de partidos segun el grupo): [/partidos/GRUPO]
+Mediante la ejecución de un simple GET podemos obtener todos los partidos registrados de un grupo específico.
+```http
+  GET /partidos/A
+```
+#### Obtendrá la información de todos los partidos correspondientes al grupo 'A'
+---
+
+### Endpoint Quiniela (Obtener todas las quinielas registradas): [/quiniela]
+Mediante la ejecución de un simple GET podemos obtener todos las quinielas registradas en el sistema
+```http
+  GET /quiniela
+```
+---
+
+### Endpoint Quiniela por ID de usuario (Obtener todas las quinielas de un usuario): [/quiniela/User_ID]
+Mediante la ejecución de un simple GET podemos obtener todos las quinielas registradas en el sistema de un usuario específico
+```http
+  GET /quiniela/1
+```
+#### Obtendrá la información de todas las quinielas registradas por el usuario especificado
+---
+
+### Endpoint Crear Quiniela: [/quiniela] (POST)
+```http
+  POST /quiniela
+```
+Es necesario enviar en el header el token en el campo 'x-access-token' Ejemplo:
+```
+  'x-access-token': ee4yJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9w2342342342343
+```
+
+Ejemplos de datos a enviar:
+```
+{
+    "id_partido": 1004,
+    "goles_equipo_a": 1,
+    "goles_equipo_b": 0,
+    "id_primer_gol": 1
+}   
+```
+---
