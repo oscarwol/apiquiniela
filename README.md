@@ -54,7 +54,7 @@ https://quiniela-eight.vercel.app/quiniela/
 localhost:7000
 ```
 
-El sistema cuenta actualmente con 12 'end point' diferentes: 
+El sistema cuenta actualmente con 13 'end point' diferentes: 
 
 | HTTP Type | Path | Used For |
 | --- | --- | --- |
@@ -68,7 +68,8 @@ El sistema cuenta actualmente con 12 'end point' diferentes:
 | `GET` | /partidos | Nos muestra el listado de TODOS los partidos registrados dentro del sistema |
 | `GET` | /partidos/GRUPO | Nos muestra el listado de partidos por grupo. Ej: /partidos/A : Grupo A. |
 | `GET` | /quiniela | Nos muestra el listado de todas las quinielas registradas en el sistema |
-| `GET` | /quiniela/USER_ID | Nos muestra el listado de todas las quinielas de un usuario en específico |
+| `GET` | /quiniela/usuario/USER_ID | Nos muestra el listado de todas las quinielas de un usuario en específico |
+| `GET` | /quiniela/grupo/GRUPO | Nos muestra el listado de todas las quinielas de un grupo específico |
 | `POST` | /quiniela | Permite crear una nueva quiniela (Se requiere de un token)|
 
 #### Endpoint Login [/login]
@@ -180,13 +181,22 @@ Mediante la ejecución de un simple GET podemos obtener todos las quinielas regi
 ```
 ---
 
-### Endpoint Quiniela por ID de usuario (Obtener todas las quinielas de un usuario): [/quiniela/User_ID]
+### Endpoint Quiniela por ID de usuario (Obtener todas las quinielas de un usuario): [/quiniela/usuario/]
 Mediante la ejecución de un simple GET podemos obtener todos las quinielas registradas en el sistema de un usuario específico
 ```http
-  GET /quiniela/1
+  GET /quiniela/usuario/1
 ```
 #### Obtendrá la información de todas las quinielas registradas por el usuario especificado
 ---
+
+### Endpoint Quiniela por Grupo (Obtener todas las quinielas de un grupo): [/quiniela/grupo/]
+Mediante la ejecución de un simple GET podemos obtener todos las quinielas registradas en el sistema de un usuario específico
+```http
+  GET /quiniela/grupo/A
+```
+#### Obtendrá la información de todas las quinielas registradas por el usuario especificado
+---
+
 
 ### Endpoint Crear Quiniela: [/quiniela] (POST)
 ```http
