@@ -54,7 +54,7 @@ https://quiniela-eight.vercel.app/quiniela/
 localhost:7000
 ```
 
-El sistema cuenta actualmente con 13 'end point' diferentes: 
+El sistema cuenta actualmente con 14 'end point' diferentes: 
 
 | HTTP Type | Path | Used For |
 | --- | --- | --- |
@@ -64,7 +64,8 @@ El sistema cuenta actualmente con 13 'end point' diferentes:
 | `GET` | /equipos | Nos muestra el listado de todas las selecciones registradas en el sistema |
 | `GET` | /equipos/EQUIPO_ID | Nos muestra los datos de un equipo con una ID específica |
 | `GET` | /active/{TOKEN} | Nos muestra si un token específico esta activo o no y la información del mismo |
-| `POST` | /activarcorreo | Permite activar una cuenta con 'estado_correo = 0' |
+| `POST` | /enviarcorreo | Envía un correo que le permitirá al usuario activar su 'estado_correo = 1' (Se requiere de un token) |
+| `POST` | /activarcorreo | Permite activar una cuenta con 'estado_correo = 0' (Manera Manual), solo usar en casos especiales |
 | `GET` | /partidos | Nos muestra el listado de TODOS los partidos registrados dentro del sistema |
 | `GET` | /partidos/GRUPO | Nos muestra el listado de partidos por grupo. Ej: /partidos/A : Grupo A. |
 | `GET` | /quiniela | Nos muestra el listado de todas las quinielas registradas en el sistema |
@@ -107,17 +108,29 @@ Ejemplos de datos a enviar:
 ```
 ---
 
-
-#### Endpoint Activar Correo [/activarcorreo]
+#### Endpoint Enviar Correo de activación [/enviarcorreo]
 ```http
-  POST /activarcorreo/
+  POST /enviarcorreo
 ```
 
 Ejemplos de datos a enviar:
 ```
 {
-    "usuario": "ozk404",
-    "correo": "ozk@gmail.com"
+    "token": "1202O0312O032103L1'21L3123",
+}
+```
+---
+
+
+#### Endpoint Activar Correo [/activarcorreo]
+```http
+  POST /activarcorreo
+```
+
+Ejemplos de datos a enviar:
+```
+{
+    "token": "1202O0312O032103L1'21L3123",
 }
 ```
 ---
