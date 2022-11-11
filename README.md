@@ -72,6 +72,7 @@ El sistema cuenta actualmente con 14 'end point' diferentes:
 | `GET` | /quiniela/usuario/USER_ID | Nos muestra el listado de todas las quinielas de un usuario en específico |
 | `GET` | /quiniela/grupo/GRUPO | Nos muestra el listado de todas las quinielas de un grupo específico |
 | `POST` | /quiniela | Permite crear una nueva quiniela (Se requiere de un token)|
+| `POST` | /puntos | Obtiene el punteo y el porcentaje de avance de un usuario en específico (Se requiere de un token)|
 
 #### Endpoint Login [/login]
 ```http
@@ -228,5 +229,12 @@ Ejemplos de datos a enviar:
     "goles_equipo_b": 0,
     "id_primer_gol": 1
 }   
+```
+---
+
+### Endpoint 'Puntos' Obtiene el punteo total de un usuario [/puntos/token]
+Mediante la ejecución de un simple GET podemos obtener todos los datos correspondientes al puntaje de un usuario, debe enviarse el token de la siguiente manera:
+```http
+  GET /puntos/TOKEN
 ```
 ---
