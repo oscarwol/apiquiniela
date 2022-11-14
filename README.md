@@ -232,9 +232,12 @@ Ejemplos de datos a enviar:
 ```
 ---
 
-### Endpoint 'Puntos' Obtiene el punteo total de un usuario [/puntos/token]
-Mediante la ejecución de un simple GET podemos obtener todos los datos correspondientes al puntaje de un usuario, debe enviarse el token de la siguiente manera:
-```http
-  GET /puntos/TOKEN
+### Endpoint 'Puntos' Obtiene el punteo total de un usuario [/puntos]
+
+Ejemplos de datos a enviar:
+```
+{
+  "token": "1234"
+}   
 ```
 ---
