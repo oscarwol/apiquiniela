@@ -54,8 +54,6 @@ https://quiniela-eight.vercel.app/quiniela/
 localhost:7000
 ```
 
-El sistema cuenta actualmente con 14 'end point' diferentes: 
-
 | HTTP Type | Path | Used For |
 | --- | --- | --- |
 | `POST` | /login | Endpoint para autenticar y logear al usuario, una autenticación exitosa retornara un token|
@@ -73,6 +71,7 @@ El sistema cuenta actualmente con 14 'end point' diferentes:
 | `GET` | /quiniela/grupo/GRUPO | Nos muestra el listado de todas las quinielas de un grupo específico |
 | `POST` | /quiniela | Permite crear una nueva quiniela (Se requiere de un token)|
 | `POST` | /puntos | Obtiene el punteo y el porcentaje de avance de un usuario en específico (Se requiere de un token)|
+| `POST` | /partidosusuario | Obtiene el listado de partidos por grupo y si un usuario específio ya los ingresó en la quiniela (Se requiere de un token)|
 
 #### Endpoint Login [/login]
 ```http
@@ -238,6 +237,28 @@ Ejemplos de datos a enviar:
 ```
 {
   "token": "1234"
+}   
+```
+---
+
+### Endpoint 'Puntos' Obtiene el punteo total de un usuario [/puntos]
+
+Ejemplos de datos a enviar:
+```
+{
+  "token": "1234"
+}   
+```
+---
+
+
+### Endpoint 'partidosusuario' Retorna si un usuario ha completado todos los aprtidos de un grupo en específico [/partidosusuario]
+
+Ejemplos de datos a enviar:
+```
+{
+  "token": "1234",
+  "grupo": "A"
 }   
 ```
 ---
